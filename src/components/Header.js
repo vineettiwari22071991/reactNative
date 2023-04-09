@@ -1,4 +1,5 @@
 import { LOGO_URL } from "../utils/consants";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -7,8 +8,12 @@ const Header = () => {
         <img className="logo" src={LOGO_URL}></img>
         <div className="nav-items">
           <ul>
-            <li>Home</li>
-            <li>About Us</li>
+            <Link to="/">
+              <li>Home</li>
+            </Link>
+            <Link to="/about">
+              <li>About Us</li>
+            </Link>
             <li>Contact Us</li>
             <li>Cart</li>
           </ul>

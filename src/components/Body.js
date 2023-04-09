@@ -1,7 +1,8 @@
 import resList from "../utils/mockData";
 import RestaurantCard from "./RestaurantCard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ShimmerUI from "./ShimmerUI";
+import { Link } from "react-router-dom";
 
 function filterData(searchText, restaurants) {
   const filterData = restaurants.filter((restaurant) =>
@@ -15,8 +16,13 @@ const Body = () => {
   const [fliterRestaurants, setfliterRestaurants] = useState([]);
   const [searchText, setSearchText] = useState("");
 
+  useMemo(() => {
+    console.log("use memo");
+  }, []);
+
   useEffect(() => {
     getRestaurantsList();
+    console.log("use effect");
   }, []);
 
   async function getRestaurantsList() {
@@ -32,6 +38,7 @@ const Body = () => {
   return (
     <div className="body">
       <div className="filter">
+        {console.log("render")}
         <input
           type="text"
           className="search-input"
@@ -53,7 +60,7 @@ const Body = () => {
         <button
           className="all-item"
           onClick={() => {
-            setSearchText("")
+            setSearchText("");
             setfliterRestaurants(allRestaurants);
           }}
         >
@@ -66,8 +73,13 @@ const Body = () => {
             if (fliterRestaurants.length === 0) {
               return <h1>No Restraurants match found!!!</h1>;
             } else {
-             return fliterRestaurants.map((restaurant) => (
-                <RestaurantCard resData={restaurant} key={restaurant.data.id} />
+              return fliterRestaurants.map((restaurant) => (
+                <Link to={"/restaurant/" + restaurant.data.id}>
+                  <RestaurantCard
+                    resData={restaurant}
+                    key={restaurant.data.id}
+                  />
+                </Link>
               ));
             }
           } else {
