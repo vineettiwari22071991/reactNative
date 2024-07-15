@@ -14,7 +14,7 @@ jobs:
         id: repo_info
         run: |
           echo "Fetching repository information..."
-          curl -s -H "Authorization: token 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" \
+          curl -s -H "Authorization: token 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" \
           https://api.github.com/repos/vineettiwari22071991/reactNative > repo_info.json
           echo "Repository information fetched."
 
