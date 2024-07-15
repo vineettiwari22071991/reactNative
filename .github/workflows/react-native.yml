@@ -52,6 +52,12 @@ jobs:
         env:
           ANDROID_HOME: ${{ github.workspace }}/android-sdk
 
+      - name: List SDK Packages (Debug)
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
+        env:
+          ANDROID_HOME: ${{ github.workspace }}/android-sdk
+
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
