@@ -11,6 +11,7 @@ jobs:
 
     env:
       CI: true
+      ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
 
     steps:
       - name: Checkout code
@@ -43,9 +44,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip
           wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
-          unzip commandlinetools-linux-6609375_latest.zip -d cmdline-tools
           mkdir -p $ANDROID_HOME/cmdline-tools
-          mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          unzip commandlinetools-linux-6609375_latest.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
 
@@ -61,8 +62,9 @@ jobs:
 
       - name: Validate Emulator is Running
         run: |
-          adb wait-for-device
-          adb shell getprop init.svc.bootanim | grep stopped
+          # Wait for emulator to start
+          for i in {1..30}; do adb shell getprop init.svc.bootanim | grep -e 'stopped' && break || sleep 10; done
+          adb devices
 
       - name: Install Watchman
         run: |
