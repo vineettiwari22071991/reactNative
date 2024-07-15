@@ -1,0 +1,37 @@
+name: Multi-Job Workflow
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Job 1 - Print Message
+        run: echo "This is Job 1"
+
+  job2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Job 2 - Print Message
+        run: echo "This is Job 2"
+
+  job3:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Job 3 - Print Message
+        run: echo "This is Job 3"
