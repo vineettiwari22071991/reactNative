@@ -38,7 +38,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'  # You can use 'zulu', 'adopt', 'adoptium', etc.
 
-      - name: Install Android SDK
+      - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
@@ -46,11 +46,7 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           emulator-options: '-no-window -no-audio'
-
-      - name: Wait for Android Emulator
-        run: |
-          adb wait-for-device
-          adb shell input keyevent 82
+          script: adb shell input keyevent 82  # This is required and can be any valid shell command
 
       - name: Install Watchman
         run: |
