@@ -1,0 +1,23 @@
+name: Get Repository Info
+
+on: [push]
+
+jobs:
+  repo_info_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get Repository Info
+        id: repo_info
+        run: |
+          echo "Fetching repository information..."
+          curl -s -H "Authorization: token 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" \
+          https://api.github.com/repos/vineettiwari22071991/reactNative > repo_info.json
+          echo "Repository information fetched."
+
+      - name: Display Repository Info
+        run: |
+          cat repo_info.json
