@@ -1,0 +1,25 @@
+name: Download and Use Artifact
+
+on: 
+  workflow_run:
+    workflows: ["Create and Upload Artifact"]
+    types:
+      - completed
+
+jobs:
+  use_artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-data
+          path: ./artifact
+
+      - name: Use Artifact
+        run: |
+          echo "Using data from artifact..."
+          cat ./artifact/data.txt
