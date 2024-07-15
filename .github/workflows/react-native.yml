@@ -1,63 +1,53 @@
-name: Run React Native App on Android
-
-on:
+name: Run React Native App
+'on':
   push:
     branches:
       - '**'
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     env:
       CI: true
-      ANDROID_HOME: ${{ github.workspace }}/android-sdk
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-
       - name: Install dependencies
         run: npm install
-
-      - name: Set up Xvfb
+      - name: Start Xvfb
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x16 &
         env:
-          DISPLAY: :99
-
+          DISPLAY: ':99'
       - name: Install JDK
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'adopt'
-
+          distribution: adopt
       - name: Install Android SDK
-        run: |
+        run: >
           sudo apt-get update
+
           sudo apt-get install -y wget unzip
-          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip -O commandlinetools.zip
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          unzip -q commandlinetools.zip -d $ANDROID_HOME/cmdline-tools/latest
-          ls -la $ANDROID_HOME/cmdline-tools/latest
+
+          wget
+          https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+
+          unzip commandlinetools-linux-6609375_latest.zip -d cmdline-tools
+
+          mkdir -p $ANDROID_HOME/cmdline-tools
+
+          mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
-        env:
-          ANDROID_HOME: ${{ github.workspace }}/android-sdk
 
-      - name: List SDK Packages (Debug)
-        run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-        env:
-          ANDROID_HOME: ${{ github.workspace }}/android-sdk
-
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
+          "platforms;android-29" "build-tools;29.0.3"
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -67,37 +57,17 @@ jobs:
           profile: Nexus 6
           emulator-options: '-no-window -no-audio'
           script: adb shell input keyevent 82
-
       - name: Validate Emulator is Running
-        run: |
-          for i in {1..30}; do adb shell getprop init.svc.bootanim | grep -e 'stopped' && break || sleep 10; done
-          adb devices
+        run: >
+          for i in {1..30}; do adb shell getprop init.svc.bootanim | grep -e
+          'stopped' && break || sleep 10; done
 
+          adb devices
       - name: Start Metro Bundler
         run: npx react-native start &
         continue-on-error: true
-
       - name: Run Android Build
         run: npx react-native run-android
         env:
-          DISPLAY: :99
+          DISPLAY: ':99'
         continue-on-error: true
-
-      - name: Capture Build Logs
-        if: failure()
-        run: |
-          echo "=== React Native Build Logs ==="
-          cat android/app/build/reports/tests/testDebugUnitTest/index.html
-          cat android/app/build/reports/androidTests/connected/index.html
-
-      - name: Output Emulator Logs
-        if: failure()
-        run: |
-          echo "=== Emulator Logs ==="
-          adb logcat -d
-
-      - name: Output ADB Devices
-        if: failure()
-        run: |
-          echo "=== ADB Devices ==="
-          adb devices
