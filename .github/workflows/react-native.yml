@@ -39,10 +39,15 @@ jobs:
           distribution: 'adopt'
 
       - name: Install Android SDK
-        uses: actions/setup-android@v2
-        with:
-          api-level: 29
-          build-tools: 29.0.3
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+          unzip commandlinetools-linux-6609375_latest.zip -d cmdline-tools
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -62,15 +67,12 @@ jobs:
       - name: Install Watchman
         run: |
           sudo apt-get update
-          sudo apt-get install -y autoconf automake build-essential python3-dev libtool libssl-dev
-          git clone https://github.com/facebook/watchman.git
-          cd watchman
-          git checkout v4.9.0
-          ./autogen.sh
-          ./configure
-          make
-          sudo make install
-        continue-on-error: true
+          sudo apt-get install -y wget
+          wget https://github.com/facebook/watchman/releases/download/v2022.10.10.00/watchman-v2022.10.10.00-linux.zip
+          unzip watchman-v2022.10.10.00-linux.zip -d watchman
+          sudo cp watchman/bin/* /usr/local/bin/
+          sudo chmod +x /usr/local/bin/watchman
+          watchman --version
 
       - name: Install CocoaPods (macOS only)
         if: runner.os == 'macOS'
