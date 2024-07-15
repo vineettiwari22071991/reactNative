@@ -36,7 +36,13 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'adopt'  # You can use 'zulu', 'adopt', 'adoptium', etc.
+          distribution: 'adopt'
+
+      - name: Install Android SDK
+        uses: actions/setup-android@v2
+        with:
+          api-level: 29
+          build-tools: 29.0.3
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -46,12 +52,17 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           emulator-options: '-no-window -no-audio'
-          script: adb shell input keyevent 82  # This is required and can be any valid shell command
+          script: adb shell input keyevent 82
+
+      - name: Validate Emulator is Running
+        run: |
+          adb wait-for-device
+          adb shell getprop init.svc.bootanim | grep stopped
 
       - name: Install Watchman
         run: |
           sudo apt-get update
-          sudo apt-get install -y autoconf automake build-essential python-dev libtool libssl-dev
+          sudo apt-get install -y autoconf automake build-essential python3-dev libtool libssl-dev
           git clone https://github.com/facebook/watchman.git
           cd watchman
           git checkout v4.9.0
@@ -59,6 +70,7 @@ jobs:
           ./configure
           make
           sudo make install
+        continue-on-error: true
 
       - name: Install CocoaPods (macOS only)
         if: runner.os == 'macOS'
