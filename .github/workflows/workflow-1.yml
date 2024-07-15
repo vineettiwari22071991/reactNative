@@ -1,0 +1,26 @@
+name: Create and Upload Artifact
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  create_artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Data
+        id: create_data
+        run: |
+          echo "Creating data..."
+          echo "Hello from Workflow 1" > data.txt
+          echo "Data created."
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-data
+          path: data.txt
