@@ -1,6 +1,6 @@
-name: Run React Native App
+name: Run React Native App on Android
 
-on: 
+on:
   push:
     branches:
       - '**'
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Start Xvfb
+      - name: Set up Xvfb
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
@@ -73,21 +73,6 @@ jobs:
           for i in {1..30}; do adb shell getprop init.svc.bootanim | grep -e 'stopped' && break || sleep 10; done
           adb devices
 
-      - name: Install Watchman
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          wget https://github.com/facebook/watchman/releases/download/v2022.10.10.00/watchman-v2022.10.10.00-linux.zip
-          unzip watchman-v2022.10.10.00-linux.zip -d watchman
-          sudo cp watchman/bin/* /usr/local/bin/
-          sudo chmod +x /usr/local/bin/watchman
-          watchman --version
-
-      - name: Install CocoaPods (macOS only)
-        if: runner.os == 'macOS'
-        run: |
-          sudo gem install cocoapods
-
       - name: Start Metro Bundler
         run: npx react-native start &
         continue-on-error: true
@@ -96,9 +81,4 @@ jobs:
         run: npx react-native run-android
         env:
           DISPLAY: :99
-        continue-on-error: true
-
-      - name: Run iOS Build (macOS only)
-        if: runner.os == 'macOS'
-        run: npx react-native run-ios
         continue-on-error: true
