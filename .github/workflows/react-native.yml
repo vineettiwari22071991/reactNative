@@ -11,7 +11,7 @@ jobs:
 
     env:
       CI: true
-      ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
+      ANDROID_HOME: ${{ github.workspace }}/android-sdk
 
     steps:
       - name: Checkout code
@@ -49,6 +49,8 @@ jobs:
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+        env:
+          ANDROID_HOME: ${{ github.workspace }}/android-sdk
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -62,7 +64,6 @@ jobs:
 
       - name: Validate Emulator is Running
         run: |
-          # Wait for emulator to start
           for i in {1..30}; do adb shell getprop init.svc.bootanim | grep -e 'stopped' && break || sleep 10; done
           adb devices
 
