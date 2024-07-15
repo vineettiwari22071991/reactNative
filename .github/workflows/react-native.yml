@@ -1,0 +1,88 @@
+name: Run React Native App
+
+on: 
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      xserver:
+        image: sickp/x11-server
+        options: >-
+          --privileged
+          --network host
+          --env DISPLAY=:99.0
+          --env XAUTHORITY=${XAUTHORITY}
+          --volume /tmp/.X11-unix:/tmp/.X11-unix
+          --volume /home/runner/.Xauthority:/root/.Xauthority
+        ports:
+          - 5900:5900
+
+    env:
+      CI: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install xvfb -y
+          sudo Xvfb :99 -ac &
+
+      - name: Install JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Install Android SDK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          profile: Nexus 6
+          emulator-options: '-no-window -no-audio'
+
+      - name: Install Watchman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake build-essential python-dev libtool libssl-dev
+          git clone https://github.com/facebook/watchman.git
+          cd watchman
+          git checkout v4.9.0
+          ./autogen.sh
+          ./configure
+          make
+          sudo make install
+
+      - name: Install CocoaPods (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          sudo gem install cocoapods
+
+      - name: Start Metro Bundler
+        run: npx react-native start &
+        continue-on-error: true
+
+      - name: Run Android Build
+        run: npx react-native run-android
+        continue-on-error: true
+
+      - name: Run iOS Build (macOS only)
+        if: runner.os == 'macOS'
+        run: npx react-native run-ios
+        continue-on-error: true
