@@ -9,19 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      xserver:
-        image: sickp/x11-server
-        options: >-
-          --privileged
-          --network host
-          --env DISPLAY=:99.0
-          --env XAUTHORITY=${XAUTHORITY}
-          --volume /tmp/.X11-unix:/tmp/.X11-unix
-          --volume /home/runner/.Xauthority:/root/.Xauthority
-        ports:
-          - 5900:5900
-
     env:
       CI: true
 
@@ -40,8 +27,10 @@ jobs:
       - name: Start Xvfb
         run: |
           sudo apt-get update
-          sudo apt-get install xvfb -y
-          sudo Xvfb :99 -ac &
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x16 &
+        env:
+          DISPLAY: :99
 
       - name: Install JDK
         uses: actions/setup-java@v2
@@ -56,6 +45,11 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           emulator-options: '-no-window -no-audio'
+
+      - name: Wait for Android Emulator
+        run: |
+          adb wait-for-device
+          adb shell input keyevent 82
 
       - name: Install Watchman
         run: |
@@ -80,6 +74,8 @@ jobs:
 
       - name: Run Android Build
         run: npx react-native run-android
+        env:
+          DISPLAY: :99
         continue-on-error: true
 
       - name: Run iOS Build (macOS only)
