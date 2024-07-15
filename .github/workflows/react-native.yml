@@ -36,6 +36,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
+          distribution: 'adopt'  # You can use 'zulu', 'adopt', 'adoptium', etc.
 
       - name: Install Android SDK
         uses: reactivecircus/android-emulator-runner@v2
