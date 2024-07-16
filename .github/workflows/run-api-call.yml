@@ -1,0 +1,25 @@
+name: Run API Call on Push
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want to monitor
+
+jobs:
+  run-api-call:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Use the version of Node.js that your project requires
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run the API call script
+        run: node apiCall.js
