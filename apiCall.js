@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 async function getGitHubUser() {
   const username = 'vineettiwari22071991';  // Replace with the username you want to fetch
   const url = `https://api.github.com/users/${username}`;
